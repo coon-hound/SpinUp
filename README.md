@@ -1,9 +1,19 @@
-# Two Motor Drivetrain for VEX
+# VEX Spin Up Code for 2022-23
 
-The controller code for a two motor drivetrain. 
+## Controller Binds
 
-Code in `src/control.cpp`.
+```
+Axis 3      Foward/Reverse
+Axis 1      Left/Right
+```
+
+#### TODO
+- [x] controller code for drivetrain 
+- [ ] controller code for intake
+- [ ] controller code for flywheel
+- [ ] Decide on Autonomous round strategy
+
+Add other functionalities later as we build robot. 
 
 Motor binds in `port_config.txt`
 
-Add other functionalities later. 
