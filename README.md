@@ -15,5 +15,5 @@ Axis 1      Left/Right
 
 Add other functionalities later as we build robot. 
 
-Motor binds in `port_config.txt`
+Motor binds in `port_config.h`
 
