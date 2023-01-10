@@ -3,8 +3,9 @@
 ## Controller Binds
 
 ```
-Axis 3      Foward/Reverse
-Axis 1      Left/Right
+Axis 3      Foward/Reverse Drive
+Axis 4		Left/Right Drive
+Axis 1      Left/Right Turn
 ```
 
 #### TODO
