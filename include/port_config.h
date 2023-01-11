@@ -11,6 +11,8 @@ using namespace vex;
 #define RIGHT_MOTOR1     PORT3
 #define RIGHT_MOTOR2     PORT4
 
+#define INTAKE           PORT5
+
 #define RADIO            PORT10
 
 #endif

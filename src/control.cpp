@@ -1,6 +1,7 @@
 #include "control.h"
 #include "port_config.h"
 #include <vex.h>
+#include <unistd.h>
 
 using namespace vex;
 
@@ -15,6 +16,11 @@ int control() {
   motor RightMotor1 = motor(RIGHT_MOTOR1, ratio18_1, false);
   motor RightMotor2 = motor(RIGHT_MOTOR2, ratio18_1, false);
 
+  motor Intake = motor(INTAKE, ratio18_1, true);
+
+  double intakespeed = 0.0;
+  double div = 1.0;
+
   //drive variables
 
   double left_motor1_speed, left_motor2_speed;
@@ -22,7 +28,6 @@ int control() {
 
   //main drive loop
   while (true) {
-
     //drive forward backward
     double axis3_value = 1.0 * Controller.Axis3.position();
 
@@ -32,17 +37,42 @@ int control() {
     //drive left right
     double axis4_value = 1.0 * Controller.Axis4.position();
 
+    //more precise movement
+    if (Controller.ButtonY.pressing()) {
+      div = 20.0;
+    }
+    if (Controller.ButtonB.pressing()) {
+      div = 1.0;
+    }
+
     //configure motor speeds
-    left_motor1_speed = axis3_value + axis4_value + axis1_value;
-    left_motor2_speed = axis3_value - axis4_value + axis1_value;
-    right_motor1_speed = axis3_value - axis4_value - axis1_value;
-    right_motor2_speed = axis3_value + axis4_value - axis1_value;
+    left_motor1_speed = (axis3_value + axis4_value + axis1_value) / div;
+    left_motor2_speed = (axis3_value - axis4_value + axis1_value) / div;
+    right_motor1_speed = (axis3_value - axis4_value - axis1_value) / div;
+    right_motor2_speed = (axis3_value + axis4_value - axis1_value) / div;
 
     //spin motor
     LeftMotor1.spin(fwd, left_motor1_speed, percentUnits::pct);
     LeftMotor2.spin(fwd, left_motor2_speed, percentUnits::pct);
     RightMotor1.spin(fwd, right_motor1_speed, percentUnits::pct);
     RightMotor2.spin(fwd, right_motor2_speed, percentUnits::pct);
+
+
+    //intake 
+    if(Controller.ButtonA.pressing() && intakespeed < 100) {
+      intakespeed += 0.005;
+    } else if (intakespeed > 0) {
+      intakespeed -= 0.015;
+    }
+    if (Controller.ButtonX.pressing() && intakespeed > -100) {
+      intakespeed -= 0.005;
+      // Intake.spin(fwd, intakespeed, percentUnits::pct);
+    } else if (intakespeed < 0) {
+      intakespeed += 0.015;
+    }
+    Intake.spin(fwd, intakespeed, percentUnits::pct);
+    brain Brain;
+    Brain.Screen.print("%lf\n", intakespeed);
   }
   return 0;
 }
