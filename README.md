@@ -6,11 +6,17 @@
 Axis 3      Foward/Reverse Drive
 Axis 4		Left/Right Drive
 Axis 1      Left/Right Turn
+
+Button Y 	Enable Precision Mode
+Button X	Disable Precision Mode
+
+Button A	Intake
+Button X	Reverse Intake 
 ```
 
 #### TODO
 - [x] controller code for drivetrain 
-- [ ] controller code for intake
+- [x] controller code for intake
 - [ ] controller code for flywheel
 - [ ] Decide on Autonomous round strategy
 
