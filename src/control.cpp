@@ -11,12 +11,13 @@ int control() {
   //controller
   controller Controller = controller(primary);
   //motors
-  motor LeftMotor1 = motor(LEFT_MOTOR1, ratio18_1, true);
-  motor LeftMotor2 = motor(LEFT_MOTOR2, ratio18_1, true);
-  motor RightMotor1 = motor(RIGHT_MOTOR1, ratio18_1, false);
-  motor RightMotor2 = motor(RIGHT_MOTOR2, ratio18_1, false);
+  motor LeftMotor1(LEFT_MOTOR1, ratio18_1, true);
+  motor LeftMotor2(LEFT_MOTOR2, ratio18_1, true);
+  motor RightMotor1(RIGHT_MOTOR1, ratio18_1, false);
+  motor RightMotor2(RIGHT_MOTOR2, ratio18_1, false);
 
-  motor Intake = motor(INTAKE, ratio18_1, true);
+  motor Intake1(INTAKE1, ratio18_1, true);
+  motor Intake2(INTAKE2, ratio18_1, false);
 
   double intakespeed = 0.0;
   double div = 1.0;
@@ -60,17 +61,19 @@ int control() {
 
     //intake 
     if(Controller.ButtonA.pressing() && intakespeed < 100) {
-      intakespeed += 0.005;
+      intakespeed += 0.025;
     } else if (intakespeed > 0) {
-      intakespeed -= 0.015;
+      intakespeed -= 0.05;
     }
     if (Controller.ButtonX.pressing() && intakespeed > -100) {
-      intakespeed -= 0.005;
+      intakespeed -= 0.025;
       // Intake.spin(fwd, intakespeed, percentUnits::pct);
     } else if (intakespeed < 0) {
-      intakespeed += 0.015;
+      intakespeed += 0.005;
     }
-    Intake.spin(fwd, intakespeed, percentUnits::pct);
+
+    Intake1.spin(fwd, intakespeed, percentUnits::pct);
+    Intake2.spin(fwd, intakespeed, percentUnits::pct);
     brain Brain;
     Brain.Screen.print("%lf\n", intakespeed);
   }
