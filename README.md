@@ -12,12 +12,15 @@ Button X	Disable Precision Mode
 
 Button A	Intake
 Button X	Reverse Intake 
+
+Button Up	Flywheel
 ```
 
 #### TODO
 - [x] controller code for drivetrain 
 - [x] controller code for intake
-- [ ] controller code for flywheel
+- [x] controller code for flywheel
+- [x] temperature-based power throttling
 - [ ] Decide on Autonomous round strategy
 
 Add other functionalities later as we build robot. 
