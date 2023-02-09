@@ -126,11 +126,11 @@ int control() {
     flywheelspeed *= throttlefactor(maxFlywheelTmp, maxTmp);
     
     //spinning
-	if (intakespeed >= 5.0) {
+	if (std::abs(intakespeed) >= 5.0) {
     	Intake1.spin(fwd, intakespeed, percentUnits::pct);
     	Intake2.spin(fwd, intakespeed, percentUnits::pct);
 	}
-    if (flywheelspeed >= 5.0) {
+    if (std::abs(flywheelspeed) >= 5.0) {
 		Flywheel1.spin(fwd, flywheelspeed, percentUnits::pct);
     	Flywheel2.spin(fwd, flywheelspeed, percentUnits::pct);
 	}
