@@ -114,9 +114,9 @@ int control() {
     }
     //flywheel speed management
     if(Controller.ButtonUp.pressing() && flywheelspeed < 100) {
-      flywheelspeed += 2.5;
+      flywheelspeed += 0.25;
     } else if (flywheelspeed > 0) {
-      flywheelspeed -= 5;
+      flywheelspeed -= 0.5;
     }
 
     //throttling based on temperature
