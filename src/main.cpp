@@ -3,6 +3,7 @@ PORT 1  LEFT MOTOR
 PORT 2  RIGHT MOTOR
 */
 
+#include "time.h"
 #include "vex.h"
 #include <bits/stdc++.h>
 #include "control.h"
