@@ -103,21 +103,24 @@ int control() {
 
     //intake speed management
     if(Controller.ButtonA.pressing() && intakespeed < 100) {
-      intakespeed += 0.25;
-    } else if (intakespeed > 0) {
-      intakespeed -= 0.5;
-    }
+      intakespeed = 100;
+    } else{
+      intakespeed = 0;
+    } 
+
     if (Controller.ButtonX.pressing() && intakespeed > -100) {
-      intakespeed -= 0.25;
+      intakespeed = -10;
       // Intake.spin(fwd, intakespeed, percentUnits::pct);
-    } else if (intakespeed < 0) {
-      intakespeed += 0.5;
+    } 
+    else{
+      intakespeed = 0;
     }
+      
     //flywheel speed management
     if(Controller.ButtonUp.pressing() && flywheelspeed < 100) {
-      flywheelspeed += 0.25;
-    } else if (flywheelspeed > 0) {
-      flywheelspeed -= 0.5;
+      flywheelspeed = 100;
+    } else{
+      flywheelspeed = 0;
     }
 
     //throttling based on temperature
@@ -127,14 +130,14 @@ int control() {
     flywheelspeed *= throttlefactor(maxFlywheelTmp, maxTmp);
     
     //spinning
-	if (std::abs(intakespeed) >= 5.0) {
+    if (std::abs(intakespeed) >= 5.0) {
     	Intake1.spin(fwd, intakespeed, percentUnits::pct);
     	Intake2.spin(fwd, intakespeed, percentUnits::pct);
-	}
+    }
     if (std::abs(flywheelspeed) >= 5.0) {
-		Flywheel1.spin(fwd, flywheelspeed, percentUnits::pct);
+      Flywheel1.spin(fwd, flywheelspeed, percentUnits::pct);
     	Flywheel2.spin(fwd, flywheelspeed, percentUnits::pct);
-	}
+    }
     //controller, brain alerts and information output
     if (maxIntakeTmp / maxTmp > 0.75) {
       Controller.Screen.print("ONE OR MORE BASE MOTORS OVERHEATING");

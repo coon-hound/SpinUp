@@ -4,8 +4,6 @@
 #include <chrono>
 
 class Clock {
-private:
-	std::chrono::time_point<std::chrono::high_resolution_clock> clockbirth;
 public:
 	Clock() {
 		clockbirth = std::chrono::high_resolution_clock::now();
@@ -16,6 +14,8 @@ public:
 		unsigned long long int time = timecast.count();
 		return time;
 	}
+private:
+	std::chrono::time_point<std::chrono::high_resolution_clock> clockbirth;
 };
 
 Clock globalClock;

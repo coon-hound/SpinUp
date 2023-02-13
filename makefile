@@ -3,6 +3,8 @@
 # show compiler output
 VERBOSE = 0
 
+CXXFLAGS += -pthread -std=c++17
+
 # include toolchain options
 include vex/mkenv.mk
 
