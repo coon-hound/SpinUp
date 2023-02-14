@@ -1,4 +1,3 @@
-#include "time.h"
 #include "control.h"
 #include "port_config.h"
 #include <algorithm>

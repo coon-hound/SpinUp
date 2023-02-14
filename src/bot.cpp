@@ -1,110 +1,115 @@
-#include "time.h"
 #include "bot.h"
 #include "port_config.h"
 #include <vex.h>
+#include <chrono>
 #include <math.h>
 using namespace vex;
 
-class Bot {
-private:
-	// devices
-	motor LeftMotor1 = motor(PORT1, ratio18_1, true); // Orthogonal 1
-	motor LeftMotor2 = motor(PORT2, ratio18_1, true); // Orthogonal 2
-	motor RightMotor1 = motor(PORT3, ratio18_1, false); // Orthogonal 2
-	motor RightMotor2 = motor(PORT4, ratio18_1, false); // Orthogonal 1
-	motor Flywheel1 = motor(FLYWHEEL1, ratio18_1, true);
-	motor Flywheel2 = motor(FLYWHEEL2, ratio18_1, false);
-	motor Intake1 = motor(INTAKE1, ratio18_1, true);
-	motor Intake2 = motor(INTAKE2, ratio18_1, false);
-	gps Gps = gps(GPS, 0, turnType::left);
-
-	double LeftMotor1Speed, LeftMotor2Speed, RightMotor1Speed, RightMotor2Speed;
-
-	// drive variables
-	double orthogonal1, orthogonal2; // defining orthogonal axis values
-	double orthogonal1Speed, orthogonal2Speed; // orthogonal axis speeds
-	double theta, sine, cosine; // defining angle values
-	double lastError1, lastError2; // defining derivative values
-	double proportional1, derivative1, proportional2, derivative2; // PD controller variables
-	double initial1, initial2; // initial distance for PD controller
-
-	//angle variables
-	double initialAngle; // initial angle
-	double angleError;
-	double lastAngleError;
-	double proportionalAngle, derivativeAngle;
-	double turnSpeed;
-
-	//PD controller constants
-	const double kP = 0.1, kD = 0.1; 
-	double abs(double k) {
-		if (k > 0) return k;
-		return -k;
-	}
+class Clock {
 public:
-	void adjustHeading(double x, double y, double degree) {
-		theta = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
-		sine = sin(theta);
-		cosine = cos(theta);
-		orthogonal1 = (cosine * x) - (sine * y);
-		orthogonal2 = (sine * x) + (cosine * y);
-		// PD controller needs work
-		proportional1 = orthogonal1 * kP; // PD controller needs work
-		proportional2 = orthogonal2 * kP; // PD controller needs work
-		derivative1 = (orthogonal1 - lastError1) * kD; // PD controller needs work
-		derivative2 = (orthogonal2 - lastError2) * kD; // PD controller needs work
-		orthogonal1Speed = proportional1 + derivative1; // PD controller needs work
-		orthogonal2Speed = proportional2 + derivative2; // PD controller needs work
-		orthogonal1Speed /= initial1; // PD controller needs work
-		orthogonal2Speed /= initial2; // PD controller needs work
-		
-		angleError = theta - (degree * 180 / 3.1415926);
-		// PD controller needs work
-		derivativeAngle = (angleError - lastAngleError) * kD; // PD controller needs work
-		proportionalAngle = angleError * kP; // PD controller needs work
-		turnSpeed = proportionalAngle + derivativeAngle; // PD controller needs work
-		turnSpeed /= initialAngle; // PD controller needs work
-
-		lastAngleError = angleError;
-		lastError1 = orthogonal1;
-		lastError2 = orthogonal2;
+	Clock() {
+		clockbirth = std::chrono::high_resolution_clock::now();
 	}
-
-	void spin() {
-		// orthogonal1 axis
-		LeftMotor1Speed = orthogonal1Speed + turnSpeed;
-		RightMotor2Speed = orthogonal1Speed - turnSpeed;
-		// orthogonal2 axis
-		LeftMotor2Speed = orthogonal2Speed + turnSpeed;
-		RightMotor1Speed = orthogonal2Speed - turnSpeed;
-		//spinning
-		LeftMotor1.spin(directionType::fwd, LeftMotor1Speed, percentUnits::pct);
-		LeftMotor2.spin(directionType::fwd, LeftMotor2Speed, percentUnits::pct);
-		RightMotor1.spin(directionType::fwd, RightMotor1Speed, percentUnits::pct);
-		RightMotor2.spin(directionType::fwd, RightMotor2Speed, percentUnits::pct);
+	unsigned long long int Now() {
+		auto timenow = std::chrono::high_resolution_clock::now();
+		auto timecast = std::chrono::duration_cast<std::chrono::milliseconds> (timenow - clockbirth);
+		unsigned long long int time = timecast.count();
+		return time;
 	}
+private:
+	std::chrono::time_point<std::chrono::high_resolution_clock> clockbirth;
+} globalClock;
 
-	void move(double x, double y, double angle) {
-		initialAngle = lastAngleError = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
-		double initialcos = cos(initialAngle), initialsin = sin(initialAngle);
-		initial1 = lastError1 = (initialcos * x) - (initialsin * y);
-		initial2 = lastError2 = (initialsin * x) + (initialcos * y);
-		while (!(abs(Gps.xPosition()-x) > 0.05 && abs(Gps.yPosition()-y) > 0.05 && abs(Gps.heading()-angle) > 0.05)) {
-			adjustHeading(x, y, angle);
-			spin();
-		}
+double Bot::Abs(double k) {
+	if (k > 0) return k;
+	return -k;
+}
+
+void Bot::AdjustHeading(double x, double y, double degree) {
+	// gets robot state
+	x -= Bot::Gps.xPosition();
+	y -= Bot::Gps.yPosition();
+	Bot::theta = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
+	
+	// necessary trig functions
+	Bot::sine = sin(theta);
+	Bot::cosine = cos(theta);
+
+	// matrix calculation
+	orthogonal1 = (cosine * x) - (sine * y);
+	orthogonal2 = (sine * x) + (cosine * y);
+
+	// PD Controller for axis displacement
+	proportional1 = orthogonal1 * kP; 
+	proportional2 = orthogonal2 * kP; 
+	derivative1 = (orthogonal1 - lastError1) * kD; 
+	derivative2 = (orthogonal2 - lastError2) * kD; 
+	orthogonal1Speed = proportional1 + derivative1; 
+	orthogonal2Speed = proportional2 + derivative2; 
+	
+	// PD Controller for angle displacement
+	angleError = theta - (degree * 180 / 3.1415926);
+	derivativeAngle = (angleError - lastAngleError) * kD;
+	proportionalAngle = angleError * kP; 
+	turnSpeed = proportionalAngle + derivativeAngle; 
+
+	// Updating Error values for the PD Controller
+	lastAngleError = angleError;
+	lastError1 = orthogonal1;
+	lastError2 = orthogonal2;
+
+	// Update orthogonal1 axis speeds
+	LeftMotor1Speed = orthogonal1Speed + turnSpeed;
+	RightMotor2Speed = orthogonal1Speed - turnSpeed;
+	// Update orthogonal2 axis speeds
+	LeftMotor2Speed = orthogonal2Speed + turnSpeed;
+	RightMotor1Speed = orthogonal2Speed - turnSpeed;
+}
+
+void Bot::Spin() {
+	LeftMotor1.spin(directionType::fwd, LeftMotor1Speed, percentUnits::pct);
+	LeftMotor2.spin(directionType::fwd, LeftMotor2Speed, percentUnits::pct);
+	RightMotor1.spin(directionType::fwd, RightMotor1Speed, percentUnits::pct);
+	RightMotor2.spin(directionType::fwd, RightMotor2Speed, percentUnits::pct);
+}
+
+void Bot::Move(double x, double y, double angle) {
+	double initialAngle = lastAngleError = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
+	double initialcos = cos(initialAngle), initialsin = sin(initialAngle);
+	lastError1 = (initialcos * x) - (initialsin * y);
+	lastError2 = (initialsin * x) + (initialcos * y);
+	while (Bot::Abs(Gps.xPosition() - x) > 0.05 or Bot::Abs(Gps.yPosition() - y) > 0.05 or Bot::Abs(Gps.heading() - angle) > 0.05) {
+		AdjustHeading(x, y, angle);
+		Spin();
 	}
+}
 
-	void turn(double angle) {
-		double change = angle - Gps.heading(rotationUnits::deg);
-		move(Gps.xPosition(), Gps.yPosition(), change);
+void Bot::Turn(double angle) {
+	Move(Gps.xPosition(), Gps.yPosition(), Gps.heading(rotationUnits::deg) + angle);
+}
+
+void Bot::SetHeading(double angle) {
+	Move(Gps.xPosition(), Gps.yPosition(), angle);
+}
+
+void Bot::Shoot(int seconds) {
+	seconds *= 1000;
+	unsigned long long start = globalClock.Now();
+	unsigned long long current = start;
+	while (current < start + 2000) {
+		current = globalClock.Now();
+		Flywheel1.spin(directionType::fwd, 100, percentUnits::pct);
+		Flywheel2.spin(directionType::fwd, 100, percentUnits::pct);
 	}
-
-	void setHeading(double angle) {
-		move(Gps.xPosition(), Gps.yPosition(), angle);
+	unsigned long long end = current + seconds;
+	while (current < end) {
+		Flywheel1.spin(directionType::fwd, 100, percentUnits::pct);
+		Flywheel2.spin(directionType::fwd, 100, percentUnits::pct);
+		Intake1.spin(directionType::fwd, 100, percentUnits::pct);
+		Intake2.spin(directionType::fwd, 100, percentUnits::pct);
 	}
-
-	void shoot() {
-
-	}
-};
+	Flywheel1.spin(directionType::fwd, 0, percentUnits::pct);
+	Flywheel2.spin(directionType::fwd, 0, percentUnits::pct);
+	Intake1.spin(directionType::fwd, 0, percentUnits::pct);
+	Intake2.spin(directionType::fwd, 0, percentUnits::pct);
+}
