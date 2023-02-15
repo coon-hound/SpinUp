@@ -17,7 +17,7 @@ Bot base;
 int main() {
   // initialize controller control
   // task controller_control = task(control);
-  base.Move(5, 5, 45);
+  base.Move(1.0, 1.0, 45);
   base.SetHeading(69);
-  base.Move(-10, -5, 75);
+  base.Move(-1.0, -1.0, 75);
 }

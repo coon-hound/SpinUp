@@ -35,7 +35,7 @@ private:
 	double turnSpeed;
 
 	//PD controller constants
-	const double kP = 0.1, kD = 0.1; 
+	const double kP = 45, kD = 10; 
 	
     double Abs(double k);
     void AdjustHeading(double x, double y, double degree);

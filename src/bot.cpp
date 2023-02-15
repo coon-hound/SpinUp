@@ -1,9 +1,12 @@
 #include "bot.h"
 #include "port_config.h"
+#include <iostream>
 #include <vex.h>
 #include <chrono>
 #include <math.h>
 using namespace vex;
+
+controller Controller = controller(primary);
 
 class Clock {
 public:
@@ -27,13 +30,13 @@ double Bot::Abs(double k) {
 
 void Bot::AdjustHeading(double x, double y, double degree) {
 	// gets robot state
-	x -= Bot::Gps.xPosition();
-	y -= Bot::Gps.yPosition();
-	Bot::theta = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
+	x -= Gps.xPosition();
+	y -= Gps.yPosition();
+	theta = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
 	
 	// necessary trig functions
-	Bot::sine = sin(theta);
-	Bot::cosine = cos(theta);
+	sine = sin(theta);
+	cosine = cos(theta);
 
 	// matrix calculation
 	orthogonal1 = (cosine * x) - (sine * y);
@@ -64,6 +67,8 @@ void Bot::AdjustHeading(double x, double y, double degree) {
 	// Update orthogonal2 axis speeds
 	LeftMotor2Speed = orthogonal2Speed + turnSpeed;
 	RightMotor1Speed = orthogonal2Speed - turnSpeed;
+	Controller.Screen.print("%d %d", orthogonal1Speed, orthogonal2Speed);
+	Controller.Screen.newLine();
 }
 
 void Bot::Spin() {
@@ -74,13 +79,14 @@ void Bot::Spin() {
 }
 
 void Bot::Move(double x, double y, double angle) {
-	double initialAngle = lastAngleError = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
-	double initialcos = cos(initialAngle), initialsin = sin(initialAngle);
+	lastAngleError = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
+	double initialcos = cos(lastAngleError), initialsin = sin(lastAngleError);
 	lastError1 = (initialcos * x) - (initialsin * y);
 	lastError2 = (initialsin * x) + (initialcos * y);
 	while (Bot::Abs(Gps.xPosition() - x) > 0.05 or Bot::Abs(Gps.yPosition() - y) > 0.05 or Bot::Abs(Gps.heading() - angle) > 0.05) {
 		AdjustHeading(x, y, angle);
 		Spin();
+		vexDelay(1000);
 	}
 }
 
