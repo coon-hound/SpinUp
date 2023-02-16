@@ -30,8 +30,8 @@ double Bot::Abs(double k) {
 
 void Bot::AdjustHeading(double x, double y, double degree) {
 	// gets robot state
-	x -= Gps.xPosition();
-	y -= Gps.yPosition();
+	double relativeX = x - Gps.xPosition();
+	double relativeY = y - Gps.yPosition();
 	theta = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
 	
 	// necessary trig functions
@@ -39,8 +39,13 @@ void Bot::AdjustHeading(double x, double y, double degree) {
 	cosine = cos(theta);
 
 	// matrix calculation
-	orthogonal1 = (cosine * x) - (sine * y);
-	orthogonal2 = (sine * x) + (cosine * y);
+	orthogonal1 = (cosine * relativeX) + (sine * relativeY);
+	orthogonal2 = - (sine * relativeX) + (cosine * relativeY);
+	/*
+	 * determinant for a rotation is 1 as the area contained in the unit square does not change
+	 * reciprocal of the determinant is also 1
+	 * a and d are the same; b and c just need to be negated
+	*/
 
 	// PD Controller for axis displacement
 	proportional1 = orthogonal1 * kP; 
@@ -67,8 +72,6 @@ void Bot::AdjustHeading(double x, double y, double degree) {
 	// Update orthogonal2 axis speeds
 	LeftMotor2Speed = orthogonal2Speed + turnSpeed;
 	RightMotor1Speed = orthogonal2Speed - turnSpeed;
-	Controller.Screen.print("%d %d", orthogonal1Speed, orthogonal2Speed);
-	Controller.Screen.newLine();
 }
 
 void Bot::Spin() {
@@ -78,12 +81,12 @@ void Bot::Spin() {
 	RightMotor2.spin(directionType::fwd, RightMotor2Speed, percentUnits::pct);
 }
 
-void Bot::Move(double x, double y, double angle) {
+void Bot::Move(double x, double y, double angle, double tolerance) {
 	lastAngleError = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
 	double initialcos = cos(lastAngleError), initialsin = sin(lastAngleError);
 	lastError1 = (initialcos * x) - (initialsin * y);
 	lastError2 = (initialsin * x) + (initialcos * y);
-	while (Bot::Abs(Gps.xPosition() - x) > 0.05 or Bot::Abs(Gps.yPosition() - y) > 0.05 or Bot::Abs(Gps.heading() - angle) > 0.05) {
+	while (Bot::Abs(Gps.xPosition() - x) > tolerance or Bot::Abs(Gps.yPosition() - y) > tolerance or Bot::Abs(Gps.heading() - angle) > tolerance) {
 		AdjustHeading(x, y, angle);
 		Spin();
 		vexDelay(1000);
