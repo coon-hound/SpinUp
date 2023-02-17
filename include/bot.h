@@ -42,7 +42,7 @@ private:
 	void Spin();
 
 public:
-	void Move(double x, double y, double angle);
+	void Move(double x, double y, double angle, double tolerance);
 	void Turn(double angle);
 	void SetHeading(double angle);
 	void Shoot(int seconds);

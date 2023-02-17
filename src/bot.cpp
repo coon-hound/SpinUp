@@ -21,7 +21,7 @@ public:
 	}
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> clockbirth;
-} globalClock;
+} timeKeeper;
 
 double Bot::Abs(double k) {
 	if (k > 0) return k;
@@ -30,8 +30,8 @@ double Bot::Abs(double k) {
 
 void Bot::AdjustHeading(double x, double y, double degree) {
 	// gets robot state
-	double relativeX = x - Gps.xPosition();
-	double relativeY = y - Gps.yPosition();
+	double relativeX = x - Gps.xPosition(distanceUnits::mm);
+	double relativeY = y - Gps.yPosition(distanceUnits::mm);
 	theta = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
 	
 	// necessary trig functions
@@ -86,27 +86,27 @@ void Bot::Move(double x, double y, double angle, double tolerance) {
 	double initialcos = cos(lastAngleError), initialsin = sin(lastAngleError);
 	lastError1 = (initialcos * x) - (initialsin * y);
 	lastError2 = (initialsin * x) + (initialcos * y);
-	while (Bot::Abs(Gps.xPosition() - x) > tolerance or Bot::Abs(Gps.yPosition() - y) > tolerance or Bot::Abs(Gps.heading() - angle) > tolerance) {
+	while (Abs(Gps.xPosition(distanceUnits::mm) - x) > tolerance or Abs(Gps.yPosition(distanceUnits::mm) - y) > tolerance or Abs(Gps.heading() - angle) > tolerance) {
 		AdjustHeading(x, y, angle);
 		Spin();
-		vexDelay(1000);
+		vexDelay(20);
 	}
 }
 
 void Bot::Turn(double angle) {
-	Move(Gps.xPosition(), Gps.yPosition(), Gps.heading(rotationUnits::deg) + angle);
+	Move(Gps.xPosition(), Gps.yPosition(), Gps.heading(rotationUnits::deg) + angle, 1);
 }
 
 void Bot::SetHeading(double angle) {
-	Move(Gps.xPosition(), Gps.yPosition(), angle);
+	Move(Gps.xPosition(), Gps.yPosition(), angle, 5);
 }
 
 void Bot::Shoot(int seconds) {
 	seconds *= 1000;
-	unsigned long long start = globalClock.Now();
+	unsigned long long start = timeKeeper.Now();
 	unsigned long long current = start;
 	while (current < start + 2000) {
-		current = globalClock.Now();
+		current = timeKeeper.Now();
 		Flywheel1.spin(directionType::fwd, 100, percentUnits::pct);
 		Flywheel2.spin(directionType::fwd, 100, percentUnits::pct);
 	}
