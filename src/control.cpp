@@ -34,7 +34,7 @@ int control() {
 
   double intakespeed = 0.0;
   double flywheelspeed = 0.0;
-  double div = 1.0;
+  double precise = 1.0;
   double axis3_value, axis1_value, axis4_value;
   double botx, boty;
   botx = Gps.xPosition();
@@ -63,10 +63,10 @@ int control() {
 
     //more precise movement
     if (Controller.ButtonY.pressing()) {
-      div = 20.0;
+      precise = 20.0;
     }
     if (Controller.ButtonB.pressing()) {
-      div = 1.0;
+      precise = 1.0;
     }
 
     //motor temperature sensing
@@ -80,10 +80,10 @@ int control() {
     tmp[FLYWHEEL2]    = Flywheel2.temperature(temperatureUnits::celsius);
 
     //configure motor speeds
-    left_motor1_speed = (axis3_value + axis4_value + axis1_value) / div;
-    left_motor2_speed = (axis3_value - axis4_value + axis1_value) / div;
-    right_motor1_speed = (axis3_value - axis4_value - axis1_value) / div;
-    right_motor2_speed = (axis3_value + axis4_value - axis1_value) / div;
+    left_motor1_speed = (axis3_value + axis4_value + axis1_value) / precise;
+    left_motor2_speed = (axis3_value - axis4_value + axis1_value) / precise;
+    right_motor1_speed = (axis3_value - axis4_value - axis1_value) / precise;
+    right_motor2_speed = (axis3_value + axis4_value - axis1_value) / precise;
 
     //throttling based on temperature
     maxMotorTmp = std::max(tmp[LEFT_MOTOR1], 
@@ -101,22 +101,21 @@ int control() {
 
 
     //intake speed management
-    if(Controller.ButtonA.pressing() && intakespeed < 100) {
+    if(Controller.ButtonA.pressing()) {
       intakespeed = 100;
-    } else{
-      intakespeed = 0;
-    } 
+    }
 
-    if (Controller.ButtonX.pressing() && intakespeed > -100) {
+    if (Controller.ButtonX.pressing()) {
       intakespeed = -10;
       // Intake.spin(fwd, intakespeed, percentUnits::pct);
     } 
-    else{
+
+    if(!Controller.ButtonA.pressing() && !Controller.ButtonX.pressing()){
       intakespeed = 0;
     }
       
     //flywheel speed management
-    if(Controller.ButtonUp.pressing() && flywheelspeed < 100) {
+    if(Controller.ButtonR1.pressing()) {
       flywheelspeed = 100;
     } else{
       flywheelspeed = 0;

@@ -9,14 +9,19 @@ using namespace vex;
 class Bot {
 private:
 	// devices
-	motor LeftMotor1 = motor(PORT1, ratio18_1, true); // Orthogonal 1
-	motor LeftMotor2 = motor(PORT2, ratio18_1, true); // Orthogonal 2
-	motor RightMotor1 = motor(PORT3, ratio18_1, false); // Orthogonal 2
-	motor RightMotor2 = motor(PORT4, ratio18_1, false); // Orthogonal 1
+	motor LeftMotor1 = motor(LEFT_MOTOR1, ratio18_1, true); // Orthogonal 1
+	motor LeftMotor2 = motor(LEFT_MOTOR2, ratio18_1, true); // Orthogonal 2
+	motor RightMotor1 = motor(RIGHT_MOTOR1, ratio18_1, false); // Orthogonal 2
+	motor RightMotor2 = motor(RIGHT_MOTOR2, ratio18_1, false); // Orthogonal 1
+
 	motor Flywheel1 = motor(FLYWHEEL1, ratio18_1, true);
 	motor Flywheel2 = motor(FLYWHEEL2, ratio18_1, false);
+
 	motor Intake1 = motor(INTAKE1, ratio18_1, true);
 	motor Intake2 = motor(INTAKE2, ratio18_1, false);
+
+	motor Roller = motor(ROLLER, ratio18_1, false);
+
 	gps Gps = gps(GPS, 0, turnType::left);
 
 	double LeftMotor1Speed, LeftMotor2Speed, RightMotor1Speed, RightMotor2Speed;
@@ -46,6 +51,8 @@ public:
 	void Turn(double angle);
 	void SetHeading(double angle);
 	void Shoot(int seconds);
+	void Intake(int seconds);
+	void Roll();
 };
 
 #endif
