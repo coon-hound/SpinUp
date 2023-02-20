@@ -16,8 +16,6 @@ using namespace vex;
 #define FLYWHEEL1		 PORT8
 #define FLYWHEEL2		 PORT9
 
-#define ROLLER			 PORT7
-
 #define RADIO            PORT10
 #define GPS				 PORT12
 
