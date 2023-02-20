@@ -1,17 +1,20 @@
 #include "control.h"
 #include "port_config.h"
 #include <algorithm>
+#include <iostream>
 #include <cmath>
 #include <vex.h>
 #include <unistd.h>
 
 using namespace vex;
 
-double throttlefactor(double tmp, const double maximumtmp) { 
+double throttlefactor(double tmp, const double maximumtmp) 
+{ 
   return sqrt(1 - (pow(tmp, 10) / pow(maximumtmp, 10)));
 }
 
-int control() {
+int control() 
+{
   //initialization
 
   //controller
@@ -34,7 +37,7 @@ int control() {
 
   double intakespeed = 0.0;
   double flywheelspeed = 0.0;
-  double precise = 1.0;
+  double precisionFactor = 1.0;
   double axis3_value, axis1_value, axis4_value;
   double botx, boty;
   botx = Gps.xPosition();
@@ -51,7 +54,8 @@ int control() {
   for (int i = 0; i < 20; ++i) tmp[i] = 0;
 
   //main drive loop
-  while (true) {
+  while (true) 
+  {
     //drive forward backward
     axis3_value = 1.0 * Controller.Axis3.position();
 
@@ -61,12 +65,14 @@ int control() {
     //drive left right
     axis4_value = 1.0 * Controller.Axis4.position();
 
-    //more precise movement
-    if (Controller.ButtonY.pressing()) {
-      precise = 20.0;
+    //more precisionFactor movement
+    if (Controller.ButtonY.pressing()) 
+    {
+      precisionFactor = 20.0;
     }
-    if (Controller.ButtonB.pressing()) {
-      precise = 1.0;
+    if (Controller.ButtonB.pressing()) 
+    {
+      precisionFactor = 1.0;
     }
 
     //motor temperature sensing
@@ -80,10 +86,10 @@ int control() {
     tmp[FLYWHEEL2]    = Flywheel2.temperature(temperatureUnits::celsius);
 
     //configure motor speeds
-    left_motor1_speed = (axis3_value + axis4_value + axis1_value) / precise;
-    left_motor2_speed = (axis3_value - axis4_value + axis1_value) / precise;
-    right_motor1_speed = (axis3_value - axis4_value - axis1_value) / precise;
-    right_motor2_speed = (axis3_value + axis4_value - axis1_value) / precise;
+    left_motor1_speed = (axis3_value + axis4_value + axis1_value) / precisionFactor;
+    left_motor2_speed = (axis3_value - axis4_value + axis1_value) / precisionFactor;
+    right_motor1_speed = (axis3_value - axis4_value - axis1_value) / precisionFactor;
+    right_motor2_speed = (axis3_value + axis4_value - axis1_value) / precisionFactor;
 
     //throttling based on temperature
     maxMotorTmp = std::max(tmp[LEFT_MOTOR1], 
@@ -101,23 +107,29 @@ int control() {
 
 
     //intake speed management
-    if(Controller.ButtonA.pressing()) {
+    if(Controller.ButtonA.pressing()) 
+    {
       intakespeed = 100;
     }
 
-    if (Controller.ButtonX.pressing()) {
+    if (Controller.ButtonX.pressing()) 
+    {
       intakespeed = -10;
       // Intake.spin(fwd, intakespeed, percentUnits::pct);
     } 
 
-    if(!Controller.ButtonA.pressing() && !Controller.ButtonX.pressing()){
+    if(!Controller.ButtonA.pressing() and !Controller.ButtonX.pressing())
+    {
       intakespeed = 0;
     }
       
     //flywheel speed management
-    if(Controller.ButtonR1.pressing()) {
+    if(Controller.ButtonR1.pressing()) 
+    {
       flywheelspeed = 100;
-    } else{
+    } 
+    else 
+    {
       flywheelspeed = 0;
     }
 
@@ -128,27 +140,23 @@ int control() {
     flywheelspeed *= throttlefactor(maxFlywheelTmp, maxTmp);
     
     //spinning
-    if (std::abs(intakespeed) >= 5.0) {
+    if (std::abs(intakespeed) >= 5.0) 
+    {
     	Intake1.spin(fwd, intakespeed, percentUnits::pct);
     	Intake2.spin(fwd, intakespeed, percentUnits::pct);
     }
-    if (std::abs(flywheelspeed) >= 5.0) {
+    if (std::abs(flywheelspeed) >= 5.0) 
+    {
       Flywheel1.spin(fwd, flywheelspeed, percentUnits::pct);
     	Flywheel2.spin(fwd, flywheelspeed, percentUnits::pct);
     }
     //controller, brain alerts and information output
-    if (maxIntakeTmp / maxTmp > 0.75) {
-      Controller.Screen.print("ONE OR MORE BASE MOTORS OVERHEATING");
+    if (maxIntakeTmp / maxTmp > 0.75 or maxIntakeTmp / maxTmp > 0.75 or maxFlywheelTmp / maxTmp > 0.75) 
+    {
+      Controller.Screen.print("One or more motors overheating");
       Controller.Screen.newLine();
     }
-    if (maxIntakeTmp / maxTmp > 0.75) {
-      Controller.Screen.print("ONE OR MORE INTAKE MOTORS OVERHEATING");
-      Controller.Screen.newLine();
-    }
-    if (maxFlywheelTmp / maxTmp > 0.75) {
-      Controller.Screen.print("ONE OR MORE FLYWHEEL MOTORS OVERHEATING");
-      Controller.Screen.newLine();
-    }
+    std::cerr << "One or more motors overheating\n";
     Controller.Screen.clearScreen();
 
   }
