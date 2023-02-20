@@ -76,14 +76,14 @@ int control()
     }
 
     //motor temperature sensing
-    tmp[LEFT_MOTOR1]  = LeftMotor1.temperature(temperatureUnits::celsius);
-    tmp[LEFT_MOTOR2]  = LeftMotor2.temperature(temperatureUnits::celsius);
-    tmp[RIGHT_MOTOR1] = RightMotor1.temperature(temperatureUnits::celsius);
-    tmp[RIGHT_MOTOR2] = RightMotor2.temperature(temperatureUnits::celsius);
-    tmp[INTAKE1]      = Intake1.temperature(temperatureUnits::celsius);
-    tmp[INTAKE2]      = Intake2.temperature(temperatureUnits::celsius);
-    tmp[FLYWHEEL1]    = Flywheel1.temperature(temperatureUnits::celsius);
-    tmp[FLYWHEEL2]    = Flywheel2.temperature(temperatureUnits::celsius);
+    tmp[LEFT_MOTOR1]  = LeftMotor1.temperature(celsius);
+    tmp[LEFT_MOTOR2]  = LeftMotor2.temperature(celsius);
+    tmp[RIGHT_MOTOR1] = RightMotor1.temperature(celsius);
+    tmp[RIGHT_MOTOR2] = RightMotor2.temperature(celsius);
+    tmp[INTAKE1]      = Intake1.temperature(celsius);
+    tmp[INTAKE2]      = Intake2.temperature(celsius);
+    tmp[FLYWHEEL1]    = Flywheel1.temperature(celsius);
+    tmp[FLYWHEEL2]    = Flywheel2.temperature(celsius);
 
     //configure motor speeds
     left_motor1_speed = (axis3_value + axis4_value + axis1_value) / precisionFactor;
@@ -100,10 +100,10 @@ int control()
     right_motor1_speed *= throttlefactor(maxMotorTmp, maxTmp);
     right_motor2_speed *= throttlefactor(maxMotorTmp, maxTmp);
     // spin motor
-    LeftMotor1.spin(fwd, left_motor1_speed, percentUnits::pct);
-    LeftMotor2.spin(fwd, left_motor2_speed, percentUnits::pct);
-    RightMotor1.spin(fwd, right_motor1_speed, percentUnits::pct);
-    RightMotor2.spin(fwd, right_motor2_speed, percentUnits::pct);
+    LeftMotor1.spin(fwd, left_motor1_speed, pct);
+    LeftMotor2.spin(fwd, left_motor2_speed, pct);
+    RightMotor1.spin(fwd, right_motor1_speed, pct);
+    RightMotor2.spin(fwd, right_motor2_speed, pct);
 
 
     //intake speed management
@@ -115,7 +115,7 @@ int control()
     if (Controller.ButtonX.pressing()) 
     {
       intakespeed = -10;
-      // Intake.spin(fwd, intakespeed, percentUnits::pct);
+      // Intake.spin(fwd, intakespeed, pct);
     } 
 
     if(!Controller.ButtonA.pressing() and !Controller.ButtonX.pressing())
@@ -142,13 +142,13 @@ int control()
     //spinning
     if (std::abs(intakespeed) >= 5.0) 
     {
-    	Intake1.spin(fwd, intakespeed, percentUnits::pct);
-    	Intake2.spin(fwd, intakespeed, percentUnits::pct);
+    	Intake1.spin(fwd, intakespeed, pct);
+    	Intake2.spin(fwd, intakespeed, pct);
     }
     if (std::abs(flywheelspeed) >= 5.0) 
     {
-      Flywheel1.spin(fwd, flywheelspeed, percentUnits::pct);
-    	Flywheel2.spin(fwd, flywheelspeed, percentUnits::pct);
+      Flywheel1.spin(fwd, flywheelspeed, pct);
+    	Flywheel2.spin(fwd, flywheelspeed, pct);
     }
     //controller, brain alerts and information output
     if (maxIntakeTmp / maxTmp > 0.75 or maxIntakeTmp / maxTmp > 0.75 or maxFlywheelTmp / maxTmp > 0.75) 
