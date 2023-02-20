@@ -6,7 +6,8 @@
 
 using namespace vex;
 
-class Bot {
+class Bot 
+{
 private:
 	// devices
 	motor LeftMotor1 = motor(LEFT_MOTOR1, ratio18_1, true); // Orthogonal 1
@@ -19,8 +20,6 @@ private:
 
 	motor Intake1 = motor(INTAKE1, ratio18_1, true);
 	motor Intake2 = motor(INTAKE2, ratio18_1, false);
-
-	motor Roller = motor(ROLLER, ratio18_1, false);
 
 	gps Gps = gps(GPS, 0, turnType::left);
 
@@ -44,15 +43,15 @@ private:
 	const double kP_angle = 5, kD_angle = 0.1;
 
     double Abs(double k);
-    void AdjustHeading(double x, double y, double degree);
+	void AdjustHeading(double x, double y, double degree, distanceUnits lengthUnit, rotationUnits angleUnit);
 	void Spin();
 
 public:
-	void Move(double x, double y, double angle, double tolerance);
+	void Move(double x, double y, double angle, double lengthTolerance, double angleTolerance, 
+			  double tickLength, distanceUnits lengthUnit, rotationUnits angleUnit);
 	void Turn(double angle);
 	void SetHeading(double angle);
 	void Shoot(int seconds);
-	void Intake(int seconds);
 	void Roll();
 };
 
