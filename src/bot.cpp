@@ -37,7 +37,11 @@ void Bot::AdjustHeading(double x, double y, double degree, distanceUnits lengthU
 	// gets robot state
 	double relativeX = x - Gps.xPosition(lengthUnit);
 	double relativeY = y - Gps.yPosition(lengthUnit);
-	theta = Gps.heading(angleUnit) * 3.1415926 / 180;
+	if (angleUnit == deg)
+	{
+		// converting to radians
+		theta = Gps.heading(angleUnit) * 3.1415926 / 180;
+	}
 	
 	// necessary trig functions
 	sine = sin(theta);
