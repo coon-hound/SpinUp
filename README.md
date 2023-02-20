@@ -14,6 +14,9 @@ Button A	Intake
 Button X	Reverse Intake 
 
 Button Up	Flywheel
+
+Button L1   Blue Autonomous Selection
+Button R1   Red Autonomous Selection
 ```
 
 ## Move functions
@@ -54,6 +57,7 @@ and a counter-clockwise turn is a position rotation)
 - [x] Decide on Autonomous round strategy
 - [x] Autonomous code finished (not yet tested)
 - [x] Updated code structure, putting autonomous functions in bot.h (defined in bot.cpp)
+- [ ] Autonomous code structure in main.cpp, add a clock to keep track of Auton time?
 - [ ] Separate intake and shoot functions because the robot may need to move around; during intake, slowly move robot forward
 - [ ] Potentially need to implement pneumatics
 
