@@ -14,10 +14,14 @@ void autonomous();
 int main() 
 {
   autonomous();
-  task controller_control = task(control);
+  control();
 
 }
 
+void control() 
+{
+  task controller_control = task(control);
+}
 
 void blueAutonomous() 
 {
