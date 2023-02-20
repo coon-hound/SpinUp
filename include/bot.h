@@ -41,7 +41,8 @@ private:
 
 	//PD controller constants
 	const double kP = 45, kD = 10; 
-	
+	const double kP_angle = 5, kD_angle = 0.1;
+
     double Abs(double k);
     void AdjustHeading(double x, double y, double degree);
 	void Spin();

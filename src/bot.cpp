@@ -57,8 +57,8 @@ void Bot::AdjustHeading(double x, double y, double degree) {
 	
 	// PD Controller for angle displacement
 	angleError = theta - (degree * 180 / 3.1415926);
-	derivativeAngle = (angleError - lastAngleError) * kD;
-	proportionalAngle = angleError * kP; 
+	derivativeAngle = (angleError - lastAngleError) * kD_angle;
+	proportionalAngle = angleError * kP_angle; 
 	turnSpeed = proportionalAngle + derivativeAngle; 
 
 	// Updating Error values for the PD Controller
