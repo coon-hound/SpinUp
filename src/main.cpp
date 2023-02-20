@@ -1,8 +1,3 @@
-/*
-PORT 1  LEFT MOTOR
-PORT 2  RIGHT MOTOR
-*/
-
 #include "vex.h"
 #include <bits/stdc++.h>
 #include "control.h"
@@ -14,7 +9,18 @@ brain Brain;
 task controller_control;
 Bot base;
 
-int main() {  
+void autonomous();
+
+int main() 
+{
+  autonomous();
+  task controller_control = task(control);
+
+}
+
+
+void blueAutonomous() 
+{
   /*
    * void Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
                double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg);
@@ -23,9 +29,35 @@ int main() {
 	 * void Shoot(int seconds);
 	 * void Roll();
   */
-  base.Move(1200, 1200, 45, 25, 1, 20, mm, deg);
-  base.SetHeading(69);
-  base.Move(-1200, -1200, 75, 25, 1, 20, mm, deg);
+}
 
-  // task controller_control = task(control);
+void redAutonomous() 
+{
+  /*
+   * void Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
+               double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg);
+	 * void Turn(double angle);
+	 * void SetHeading(double angle);
+	 * void Shoot(int seconds);
+	 * void Roll();
+  */
+}
+
+void autonomous() 
+{
+  // waiting for selection: Neither button is pressed
+  while (!ButtonL1.pressing() and !ButtonR1.pressing())
+  {
+    vexDelay(10);
+  }
+
+  // autonomous code selection and execution
+  if (ButtonL1.pressing())
+  {
+    blueAutonomous();
+  }
+  else
+  {
+    redAutonomous();
+  }
 }
