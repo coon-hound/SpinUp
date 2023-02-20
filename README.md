@@ -17,13 +17,14 @@ Button Up	Flywheel
 ```
 
 #### TODO
-- [x] controller code for drivetrain 
+- [x] controller code for drive
 - [x] controller code for intake
 - [x] controller code for flywheel
-- [x] temperature-based power throttling
-- [ ] Decide on Autonomous round strategy
-
-Add other functionalities later as we build robot. 
+- [x] controller code for roller (using intake)
+- [x] temperature-based power throttling (unnecessary, remove later)
+- [x] Decide on Autonomous round strategy
+- [x] Autonomous code finished (not yet tested)
+- [x] Updated code structure, putting autonomous functions in bot.h (defined in bot.cpp)
 
 Motor binds in `port_config.h`
 
