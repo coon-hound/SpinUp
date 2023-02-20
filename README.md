@@ -25,6 +25,7 @@ Button Up	Flywheel
 - [x] Decide on Autonomous round strategy
 - [x] Autonomous code finished (not yet tested)
 - [x] Updated code structure, putting autonomous functions in bot.h (defined in bot.cpp)
+- [ ] Separate intake and shoot functions because the robot may need to move around
 - [ ] Potentially need to implement pneumatics
 
 Motor binds in `port_config.h`
