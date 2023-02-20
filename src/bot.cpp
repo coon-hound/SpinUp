@@ -8,12 +8,15 @@ using namespace vex;
 
 controller Controller = controller(primary);
 
-class Clock {
+class Clock 
+{
 public:
-	Clock() {
+	Clock() 
+	{
 		clockbirth = std::chrono::high_resolution_clock::now();
 	}
-	unsigned long long int Now() {
+	unsigned long long int Now() 
+	{
 		auto timenow = std::chrono::high_resolution_clock::now();
 		auto timecast = std::chrono::duration_cast<std::chrono::milliseconds> (timenow - clockbirth);
 		unsigned long long int time = timecast.count();
@@ -23,16 +26,18 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> clockbirth;
 } timeKeeper;
 
-double Bot::Abs(double k) {
+double Bot::Abs(double k) 
+{
 	if (k > 0) return k;
 	return -k;
 }
 
-void Bot::AdjustHeading(double x, double y, double degree) {
+void Bot::AdjustHeading(double x, double y, double degree, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
+{
 	// gets robot state
-	double relativeX = x - Gps.xPosition(distanceUnits::mm);
-	double relativeY = y - Gps.yPosition(distanceUnits::mm);
-	theta = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
+	double relativeX = x - Gps.xPosition(lengthUnit);
+	double relativeY = y - Gps.yPosition(lengthUnit);
+	theta = Gps.heading(angleUnit) * 3.1415926 / 180;
 	
 	// necessary trig functions
 	sine = sin(theta);
@@ -74,71 +79,81 @@ void Bot::AdjustHeading(double x, double y, double degree) {
 	RightMotor1Speed = orthogonal2Speed - turnSpeed;
 }
 
-void Bot::Spin() {
-	LeftMotor1.spin(directionType::fwd, LeftMotor1Speed, percentUnits::pct);
-	LeftMotor2.spin(directionType::fwd, LeftMotor2Speed, percentUnits::pct);
-	RightMotor1.spin(directionType::fwd, RightMotor1Speed, percentUnits::pct);
-	RightMotor2.spin(directionType::fwd, RightMotor2Speed, percentUnits::pct);
+void Bot::Spin() 
+{
+	LeftMotor1.spin(fwd, LeftMotor1Speed, pct);
+	LeftMotor2.spin(fwd, LeftMotor2Speed, pct);
+	RightMotor1.spin(fwd, RightMotor1Speed, pct);
+	RightMotor2.spin(fwd, RightMotor2Speed, pct);
 }
 
-void Bot::Move(double x, double y, double angle, double tolerance) {
-	lastAngleError = Gps.heading(rotationUnits::deg) * 3.1415926 / 180;
+void Bot::Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
+			   double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
+{
+	lastAngleError = Gps.heading(deg) * 3.1415926 / 180;
 	double initialcos = cos(lastAngleError), initialsin = sin(lastAngleError);
 	lastError1 = (initialcos * x) - (initialsin * y);
 	lastError2 = (initialsin * x) + (initialcos * y);
-	while (Abs(Gps.xPosition(distanceUnits::mm) - x) > tolerance or Abs(Gps.yPosition(distanceUnits::mm) - y) > tolerance or Abs(Gps.heading(rotationUnits::deg) - angle) > tolerance) {
-		AdjustHeading(x, y, angle);
+	while (Abs(Gps.xPosition(lengthUnit) - x) > lengthTolerance || 
+		   Abs(Gps.yPosition(lengthUnit) - y) > lengthTolerance || 
+		   Abs(Gps.heading(angleUnit) - angle) > angleTolerance) 
+	{
+		AdjustHeading(x, y, angle, lengthUnit, angleUnit);
 		Spin();
+		vexDelay(tickLength);
+	}
+	LeftMotor1.stop();
+	RightMotor1.stop();
+	LeftMotor2.stop();
+	RightMotor2.stop();
+}
+
+void Bot::Turn(double angle) 
+{
+	Move(Gps.xPosition(mm), Gps.yPosition(mm), Gps.heading(deg) + angle, 25, 1, 20, mm, deg);
+}
+
+void Bot::SetHeading(double angle) 
+{
+	Move(Gps.xPosition(mm), Gps.yPosition(mm), angle, 25, 1, 20, mm, deg);
+}
+
+void Bot::Shoot(int seconds) 
+{
+	seconds *= 1000;
+	auto start = timeKeeper.Now();
+	auto current = start;
+	while (current < start + 2000) 
+	{
+		current = timeKeeper.Now();
+		Flywheel1.spin(fwd, 100, pct);
+		Flywheel2.spin(fwd, 100, pct);
+	}
+	auto end = current + seconds;
+	while (current < end) 
+	{
+		current = timeKeeper.Now();
+		Flywheel1.spin(fwd, 100, pct);
+		Flywheel2.spin(fwd, 100, pct);
+		Intake1.spin(fwd, 100, pct);
+		Intake2.spin(fwd, 100, pct);
+	}
+	Flywheel1.stop();
+	Flywheel2.stop();
+	Intake1.stop();
+	Intake2.stop();
+}
+
+void Bot::Roll() 
+{
+	Intake1.setPosition(0, deg);
+	Intake2.setPosition(0, deg);
+	Intake1.spin(fwd, 50, pct);
+	Intake2.spin(fwd, 50, pct);
+	while (Abs(Intake1.position(deg) - 180) > 5 and Abs(Intake2.position(deg) - 180) > 5)
+	{
 		vexDelay(20);
 	}
-}
-
-void Bot::Turn(double angle) {
-	Move(Gps.xPosition(distanceUnits::mm), Gps.yPosition(distanceUnits::mm), Gps.heading(rotationUnits::deg) + angle, 1);
-}
-
-void Bot::SetHeading(double angle) {
-	Move(Gps.xPosition(distanceUnits::mm), Gps.yPosition(distanceUnits::mm), angle, 5);
-}
-
-void Bot::Shoot(int seconds) {
-	seconds *= 1000;
-	auto start = timeKeeper.Now();
-	auto current = start;
-	while (current < start + 2000) {
-		current = timeKeeper.Now();
-		Flywheel1.spin(directionType::fwd, 100, percentUnits::pct);
-		Flywheel2.spin(directionType::fwd, 100, percentUnits::pct);
-	}
-	auto end = current + seconds;
-	while (current < end) {
-		current = timeKeeper.Now();
-		Flywheel1.spin(directionType::fwd, 100, percentUnits::pct);
-		Flywheel2.spin(directionType::fwd, 100, percentUnits::pct);
-		Intake1.spin(directionType::fwd, 100, percentUnits::pct);
-		Intake2.spin(directionType::fwd, 100, percentUnits::pct);
-	}
-	Flywheel1.spin(directionType::fwd, 0, percentUnits::pct);
-	Flywheel2.spin(directionType::fwd, 0, percentUnits::pct);
-	Intake1.spin(directionType::fwd, 0, percentUnits::pct);
-	Intake2.spin(directionType::fwd, 0, percentUnits::pct);
-}
-
-void Bot::Intake(int seconds) {
-	seconds *= 1000;
-	auto start = timeKeeper.Now();
-	auto current = start;
-	auto end = current + seconds;
-
-	while(current < end){
-		current = timeKeeper.Now();
-		Intake1.spin(directionType::fwd, 100, percentUnits::pct);
-		Intake2.spin(directionType::fwd, 100, percentUnits::pct);
-	}
-	Intake1.spin(directionType::fwd, 0, percentUnits::pct);
-	Intake2.spin(directionType::fwd, 0, percentUnits::pct);
-}
-
-void Bot::Roll() {
-	while(Roller.spinTo(180, rotationUnits::deg, true));
+	Intake1.stop();
+	Intake2.stop();
 }
