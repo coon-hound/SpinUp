@@ -8,17 +8,19 @@ using namespace vex;
 brain Brain;
 task controller_control;
 Bot base;
+controller selectionController = controller(primary);
 
 void autonomous();
+void control_sequence();
 
 int main() 
 {
   autonomous();
-  control();
+  control_sequence();
 
 }
 
-void control() 
+void control_sequence() 
 {
   task controller_control = task(control);
 }
@@ -50,13 +52,13 @@ void redAutonomous()
 void autonomous() 
 {
   // waiting for selection: Neither button is pressed
-  while (!ButtonL1.pressing() and !ButtonR1.pressing())
+  while (!selectionController.ButtonL1.pressing() and !selectionController.ButtonR1.pressing())
   {
     vexDelay(10);
   }
 
   // autonomous code selection and execution
-  if (ButtonL1.pressing())
+  if (selectionController.ButtonL1.pressing())
   {
     blueAutonomous();
   }
