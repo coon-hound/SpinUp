@@ -28,15 +28,10 @@ int control()
 
   gps Gps(GPS, 0, turnType::right);
 
-
-
   double intakespeed = 0.0;
   double flywheelspeed = 0.0;
   double precisionFactor = 1.0;
   double axis3_value, axis1_value, axis4_value;
-  double botx, boty;
-  botx = Gps.xPosition();
-  boty = Gps.yPosition();
 
   //drive variables
 
@@ -77,7 +72,6 @@ int control()
     RightMotor1.spin(fwd, right_motor1_speed, pct);
     RightMotor2.spin(fwd, right_motor2_speed, pct);
 
-
     //intake speed management
     if(Controller.ButtonA.pressing()) 
     {
@@ -86,7 +80,7 @@ int control()
 
     if (Controller.ButtonX.pressing()) 
     {
-      intakespeed = -10;
+      intakespeed = -50;
       // Intake.spin(fwd, intakespeed, pct);
     } 
 
@@ -112,6 +106,8 @@ int control()
     Flywheel2.spin(fwd, flywheelspeed, pct);
 
     std::cout << intakespeed << " " << flywheelspeed << "\n";
+    Controller.Screen.print("%lf %lf", intakespeed, flywheelspeed);
+    Controller.Screen.clearScreen();
 
   }
   return 0;
