@@ -39,7 +39,7 @@ int control()
   double right_motor1_speed, right_motor2_speed;
 
   //main drive loop
-  while (true) 
+  while (!Controller.ButtonLeft.pressing()) 
   {
     //drive forward backward
     axis3_value = 1.0 * Controller.Axis3.position();
@@ -73,24 +73,24 @@ int control()
     RightMotor2.spin(fwd, right_motor2_speed, pct);
 
     //intake speed management
-    if(Controller.ButtonA.pressing()) 
+    if(Controller.ButtonR1.pressing()) 
     {
       intakespeed = 100;
     }
 
-    if (Controller.ButtonX.pressing()) 
+    if (Controller.ButtonR2.pressing()) 
     {
       intakespeed = -50;
       // Intake.spin(fwd, intakespeed, pct);
     } 
 
-    if((!Controller.ButtonA.pressing()) and (!Controller.ButtonX.pressing()))
+    if((!Controller.ButtonR1.pressing()) and (!Controller.ButtonR2.pressing()))
     {
       intakespeed = 0;
     }
       
     //flywheel speed management
-    if(Controller.ButtonUp.pressing()) 
+    if(Controller.ButtonL1.pressing()) 
     {
       Flywheel1.spin(fwd, 100, pct);
       Flywheel2.spin(fwd, 90, pct);
@@ -110,5 +110,12 @@ int control()
     Controller.Screen.clearScreen();
 
   }
+  // vexDelay(1000);
+  // if (Controller.ButtonLeft.pressing()) 
+  // {
+  //   // activate pneumatics
+  //   pneumatics Rope(Brain.ThreeWirePort.B);
+  //   Rope.open();
+  // }
   return 0;
 }

@@ -56,13 +56,13 @@ void redAutonomous()
 void autonomous() 
 {
   // waiting for selection: Neither button is pressed
-  while (!selectionController.ButtonL1.pressing() and !selectionController.ButtonR1.pressing())
+  while (!selectionController.ButtonUp.pressing() and !selectionController.ButtonDown.pressing())
   {
     vexDelay(10);
   }
 
   // autonomous code selection and execution
-  if (selectionController.ButtonL1.pressing())
+  if (selectionController.ButtonUp.pressing())
   {
     blueAutonomous();
   }
