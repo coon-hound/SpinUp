@@ -12,11 +12,14 @@ controller selectionController = controller(primary);
 
 void autonomous();
 void control_sequence();
+void blueAutonomous();
 
 int main() 
 {
-  autonomous();
-  control_sequence();
+  // control_sequence();
+  // blueAutonomous();
+  // autonomous();
+  // control_sequence();
 
 }
 
@@ -27,6 +30,7 @@ void control_sequence()
 
 void blueAutonomous() 
 {
+  base.Move(1000, 1000, 0, 25, 1, 20, mm, deg);
   /*
    * void Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
                double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg);
