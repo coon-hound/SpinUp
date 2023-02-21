@@ -10,8 +10,8 @@ class Bot
 {
 private:
 	//PD controller constants (need to be tuned)
-	const double kP = 50, kD = 10; // tune value
-	const double kP_angle = 5, kD_angle = 0.1; // tune value
+	const double kP = 5, kD = 0.1; // tune value
+	const double kP_angle = 0.05, kD_angle = 0.001; // tune value
 
 	// devices
 	motor LeftMotor1 = motor(LEFT_MOTOR1, ratio18_1, true); // Orthogonal 1
