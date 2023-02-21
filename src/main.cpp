@@ -16,7 +16,7 @@ void blueAutonomous();
 
 int main() 
 {
-  // control_sequence();
+  control_sequence();
   // blueAutonomous();
   // autonomous();
   // control_sequence();

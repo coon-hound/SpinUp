@@ -92,18 +92,18 @@ int control()
     //flywheel speed management
     if(Controller.ButtonUp.pressing()) 
     {
-      flywheelspeed = 100;
+      Flywheel1.spin(fwd, 100, pct);
+      Flywheel2.spin(fwd, 90, pct);
     } 
     else 
     {
-      flywheelspeed = 0;
+      Flywheel1.spin(fwd, 0, pct);
+      Flywheel2.spin(fwd, 0, pct);
     }
     
     //spinning
     Intake1.spin(fwd, intakespeed, pct);
     Intake2.spin(fwd, intakespeed, pct);
-    Flywheel1.spin(fwd, flywheelspeed, pct);
-    Flywheel2.spin(fwd, flywheelspeed, pct);
 
     std::cout << intakespeed << " " << flywheelspeed << "\n";
     Controller.Screen.print("%lf %lf", intakespeed, flywheelspeed);
