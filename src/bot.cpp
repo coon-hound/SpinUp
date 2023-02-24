@@ -3,8 +3,9 @@
 #include <iostream>
 #include <vex.h>
 #include <chrono>
-#include <math.h>
+#include <cmath>
 using namespace vex;
+using namespace std;
 
 controller Controller = controller(primary);
 
@@ -32,57 +33,6 @@ double Bot::Abs(double k)
 	return -k;
 }
 
-void Bot::AdjustHeading(double x, double y, double degree, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
-{
-	// gets robot state
-	double relativeX = x - Gps.xPosition(lengthUnit);
-	double relativeY = y - Gps.yPosition(lengthUnit);
-	if (angleUnit == deg)
-	{
-		// converting to radians
-		theta = Gps.heading(angleUnit) * 3.1415926 / 180;
-	}
-	
-	// necessary trig functions
-	sine = sin(theta);
-	cosine = cos(theta);
-
-	// matrix calculation
-	orthogonal1 = (cosine * relativeX) + (sine * relativeY);
-	orthogonal2 = - (sine * relativeX) + (cosine * relativeY);
-	/*
-	 * determinant for a rotation is 1 as the area contained in the unit square does not change
-	 * reciprocal of the determinant is also 1
-	 * a and d are the same; b and c just need to be negated
-	*/
-
-	// PD Controller for axis displacement
-	proportional1 = orthogonal1 * kP; 
-	proportional2 = orthogonal2 * kP; 
-	derivative1 = (orthogonal1 - lastError1) * kD; 
-	derivative2 = (orthogonal2 - lastError2) * kD; 
-	orthogonal1Speed = proportional1 + derivative1; 
-	orthogonal2Speed = proportional2 + derivative2; 
-	
-	// PD Controller for angle displacement
-	angleError = theta - (degree * 180 / 3.1415926);
-	derivativeAngle = (angleError - lastAngleError) * kD_angle;
-	proportionalAngle = angleError * kP_angle; 
-	turnSpeed = proportionalAngle + derivativeAngle; 
-
-	// Updating Error values for the PD Controller
-	lastAngleError = angleError;
-	lastError1 = orthogonal1;
-	lastError2 = orthogonal2;
-
-	// Update orthogonal1 axis speeds
-	LeftMotor1Speed = orthogonal1Speed + turnSpeed;
-	RightMotor2Speed = orthogonal1Speed - turnSpeed;
-	// Update orthogonal2 axis speeds
-	LeftMotor2Speed = orthogonal2Speed + turnSpeed;
-	RightMotor1Speed = orthogonal2Speed - turnSpeed;
-}
-
 void Bot::Spin() 
 {
 	LeftMotor1.spin(fwd, LeftMotor1Speed, pct);
@@ -91,19 +41,75 @@ void Bot::Spin()
 	RightMotor2.spin(fwd, RightMotor2Speed, pct);
 }
 
+Bot::Bot()
+{
+	// Gps.setOrigin(0, 0, distanceUnits::mm);
+}
+
 void Bot::Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
 			   double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
 {
-	lastAngleError = Gps.heading(deg) * 3.1415926 / 180;
-	double initialcos = cos(lastAngleError), initialsin = sin(lastAngleError);
-	lastError1 = (initialcos * x) - (initialsin * y);
-	lastError2 = (initialsin * x) + (initialcos * y);
+	cout << Gps.xPosition(lengthUnit);
+	cout << Gps.yPosition(lengthUnit);
+	while(1)
+	{
+		cout << "yes\n";
+		cout << Gps.xPosition(lengthUnit) << " " << Gps.yPosition(lengthUnit) << "\n";
+		// printf("%d %d\n", Gps.xPosition(lengthUnit), Gps.yPosition(lengthUnit));
+		vexDelay(1000);
+	}
+	// angle += 1;
+	double previous_x_error = 0;
+	double previous_y_error = 0;
+	double previous_angle_error = 0;
+	angle *= (M_PI/180);
 	while (Abs(Gps.xPosition(lengthUnit) - x) > lengthTolerance || 
 		   Abs(Gps.yPosition(lengthUnit) - y) > lengthTolerance || 
 		   Abs(Gps.heading(angleUnit) - angle) > angleTolerance) 
 	{
-		AdjustHeading(x, y, angle, lengthUnit, angleUnit);
+		double curr_x = Gps.xPosition(lengthUnit);
+		double curr_y = Gps.yPosition(lengthUnit);
+
+		double e1_theta = Gps.heading(angleUnit) * (M_PI/180) - (M_PI/4);
+
+		double new_x = (std::sin(e1_theta)*curr_x) - (std::cos(e1_theta) * y);
+		double theta = Gps.heading(angleUnit) * (M_PI/180);
+		double e2_theta = Gps.heading(angleUnit) * (M_PI/180) + (M_PI/4);
+		double e1 [2] = {1*std::sin(e1_theta), 1*std::cos(e1_theta)};
+		double e2 [2] = {1*std::sin(e2_theta), 1*std::cos(e2_theta)};
+		double one_over_det = 1/(e1[0] * e2[1] - e2[0] * e1[1]);
+		double x_diff = x - Gps.xPosition(lengthUnit);
+		double y_diff = y - Gps.yPosition(lengthUnit);
+		double deriv_y = kD_dist * (y_diff - previous_y_error);
+		double deriv_x = kD_dist * (x_diff - previous_x_error);
+		double theta_diff = angle - theta;
+		double theta_output = kP_angle * theta_diff + kD_angle * (theta_diff - previous_angle_error);
+		double e1_output = one_over_det * (e2[1] * x_diff - e2[0] * y_diff);
+		double e2_output = one_over_det * (-e1[1] * x_diff + e1[0] * y_diff);
+		LeftMotor1Speed = kP_dist * e2_output + deriv_x + deriv_y + theta_output;
+		LeftMotor2Speed = kP_dist * e1_output + deriv_x + deriv_y + theta_output;
+		RightMotor1Speed = kP_dist * e1_output + deriv_x + deriv_y - theta_output;
+		RightMotor2Speed = kP_dist * e2_output + deriv_x + deriv_y - theta_output;
+		cout << "curr x: " << Gps.xPosition(lengthUnit) << "\n";
+		cout << "curr y: " << Gps.yPosition(lengthUnit) << "\n";
+		cout << "curr angle: " << Gps.heading(angleUnit) << "\n";
+		cout << endl;
+		cout << "e1_output: " << e1_output << "\n";
+		cout << "e2_output: " << e2_output << "\n";
+		cout << endl;
+		cout << "deriv_x: " << deriv_x << "\n";
+		cout << "deriv_y: " << deriv_y << "\n";
+		cout << endl;
+		cout << "LeftM1 Speed: " << LeftMotor1Speed << "\n";
+		cout << "LeftM2 Speed: " << LeftMotor2Speed << "\n";
+		cout << "RightM1 Speed: " << LeftMotor1Speed << "\n";
+		cout << "RightM2 Speed: " << RightMotor2Speed << "\n";
+		cout << endl;
+		cout << endl;
 		Spin();
+		previous_angle_error = theta_diff;
+		previous_x_error = x_diff;
+		previous_y_error = y_diff;
 		vexDelay(tickLength);
 	}
 	LeftMotor1.stop();

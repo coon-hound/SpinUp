@@ -10,8 +10,8 @@ class Bot
 {
 private:
 	//PD controller constants (need to be tuned)
-	const double kP = 5, kD = 0.1; // tune value
-	const double kP_angle = 0.05, kD_angle = 0.001; // tune value
+	const double kP_dist = 45, kD_dist = 12; // tune value
+	const double kP_angle = 45, kD_angle = 8; // tune value
 
 	// devices
 	motor LeftMotor1 = motor(LEFT_MOTOR1, ratio18_1, true); // Orthogonal 1
@@ -43,10 +43,11 @@ private:
 	double turnSpeed;
 
     double Abs(double k);
-	void AdjustHeading(double x, double y, double degree, distanceUnits lengthUnit, rotationUnits angleUnit);
+	// void AdjustHeading(double x, double y, double degree, distanceUnits lengthUnit, rotationUnits angleUnit);
 	void Spin();
 
 public:
+	Bot();
 	void Move(double x, double y, double angle, double lengthTolerance, double angleTolerance, 
 			  double tickLength, distanceUnits lengthUnit, rotationUnits angleUnit);
 	void Turn(double angle);

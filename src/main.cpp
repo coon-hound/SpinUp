@@ -5,7 +5,7 @@
 
 using namespace vex;
 
-brain Brain;
+// brain Brain;
 task controller_control;
 Bot base;
 controller selectionController = controller(primary);
@@ -16,10 +16,16 @@ void blueAutonomous();
 
 int main() 
 {
-  // control_sequence();
-  // blueAutonomous();
-  autonomous();
+  
+  // base.Move(100,100,180, 0, 1, 20, mm, deg);
+  // base.Turn(180);
+  // vexDelay(1000);
+  // base.SetHeading(0);
+// base.Move(-100,-100,180, 25, 1, 20, mm, deg);
   control_sequence();
+  // blueAutonomous();
+  // autonomous();
+  // control_sequence();
 
 }
 
