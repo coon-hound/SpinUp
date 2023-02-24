@@ -105,9 +105,7 @@ int control()
     Intake1.spin(fwd, intakespeed, pct);
     Intake2.spin(fwd, intakespeed, pct);
 
-    std::cout << intakespeed << " " << flywheelspeed << "\n";
-    Controller.Screen.print("%lf %lf", intakespeed, flywheelspeed);
-    Controller.Screen.clearScreen();
+    printf("(%lf, %lf) at angle %lf\n", Gps.xPosition(), Gps.yPosition(), Gps.heading());
 
   }
   // vexDelay(1000);

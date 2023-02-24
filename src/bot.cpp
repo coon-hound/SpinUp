@@ -32,43 +32,50 @@ double Bot::Abs(double k)
 	return -k;
 }
 
+namespace _internal
+{
+	double getSine(double angle)
+	{
+		return sin(angle / 180 * M_PI);
+	}
+	double getCosine(double angle)
+	{
+		return cos(angle / 180 * M_PI);
+	}
+}
+
 void Bot::AdjustHeading(double x, double y, double degree, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
 {
 	// gets robot state
 	double relativeX = x - Gps.xPosition(lengthUnit);
 	double relativeY = y - Gps.yPosition(lengthUnit);
-	if (angleUnit == deg)
-	{
-		// converting to radians
-		theta = Gps.heading(angleUnit) * 3.1415926 / 180;
-	}
+
+	angleError = degree - Gps.heading(angleUnit);
+	heading = Gps.heading() - 45;
 	
 	// necessary trig functions
-	sine = sin(theta);
-	cosine = cos(theta);
+	sine = _internal::getSine(heading);
+	cosine = _internal::getCosine(heading);
 
 	// matrix calculation
-	orthogonal1 = (cosine * relativeX) + (sine * relativeY);
-	orthogonal2 = - (sine * relativeX) + (cosine * relativeY);
-	/*
-	 * determinant for a rotation is 1 as the area contained in the unit square does not change
-	 * reciprocal of the determinant is also 1
-	 * a and d are the same; b and c just need to be negated
-	*/
+	orthogonal1 = (cosine * relativeY) - (sine * relativeX);
+	orthogonal2 = (cosine * relativeX) + (sine * relativeY);
 
 	// PD Controller for axis displacement
-	proportional1 = orthogonal1 * kP; 
+ 	proportional1 = orthogonal1 * kP; 
 	proportional2 = orthogonal2 * kP; 
 	derivative1 = (orthogonal1 - lastError1) * kD; 
 	derivative2 = (orthogonal2 - lastError2) * kD; 
 	orthogonal1Speed = proportional1 + derivative1; 
-	orthogonal2Speed = proportional2 + derivative2; 
+	orthogonal2Speed = proportional2 + derivative2;
+	// orthogonal1Speed = proportional1;
+	// orthogonal2Speed = proportional2; 
 	
 	// PD Controller for angle displacement
-	angleError = theta - (degree * 180 / 3.1415926);
-	derivativeAngle = (angleError - lastAngleError) * kD_angle;
 	proportionalAngle = angleError * kP_angle; 
+	derivativeAngle = (angleError - lastAngleError) * kD_angle;
 	turnSpeed = proportionalAngle + derivativeAngle; 
+	// turnSpeed = proportionalAngle;
 
 	// Updating Error values for the PD Controller
 	lastAngleError = angleError;
@@ -81,7 +88,14 @@ void Bot::AdjustHeading(double x, double y, double degree, distanceUnits lengthU
 	// Update orthogonal2 axis speeds
 	LeftMotor2Speed = orthogonal2Speed + turnSpeed;
 	RightMotor1Speed = orthogonal2Speed - turnSpeed;
+	std::cout << "Coords: " << Gps.xPosition() << ", " << Gps.yPosition() << "\n";
+	std::cout << "X: " << relativeX << " Y: " << relativeY << "\n";
+	std::cout << "Angle: " << angleError << "\n";
+	std::cout << "O1speed: " << orthogonal1Speed << " O2speed: " << orthogonal2Speed << " turnspeed: " << turnSpeed << "\n";
+	std::cout << "O1: " << orthogonal1 << " O2: " << orthogonal2 << " Angle: " << angleError << "\n\n";
 }
+
+
 
 void Bot::Spin() 
 {
@@ -91,13 +105,13 @@ void Bot::Spin()
 	RightMotor2.spin(fwd, RightMotor2Speed, pct);
 }
 
-void Bot::Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
-			   double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
+void Bot::Move(double x, double y, double angle, double lengthTolerance = 100, double angleTolerance = 10, 
+			   double tickLength = 0, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
 {
-	lastAngleError = Gps.heading(deg) * 3.1415926 / 180;
-	double initialcos = cos(lastAngleError), initialsin = sin(lastAngleError);
-	lastError1 = (initialcos * x) - (initialsin * y);
-	lastError2 = (initialsin * x) + (initialcos * y);
+	lastAngleError = angle - Gps.heading(deg);
+	double initialcos = cos((Gps.heading(deg) - 45) / 180 * M_PI), initialsin = sin((Gps.heading(deg) - 45) / 180 * M_PI);
+	lastError1 = (initialcos * (y - Gps.yPosition())) - (initialsin * (x - Gps.xPosition()));
+	lastError2 = (initialsin * (y - Gps.yPosition())) + (initialcos * (x - Gps.xPosition()));
 	while (Abs(Gps.xPosition(lengthUnit) - x) > lengthTolerance || 
 		   Abs(Gps.yPosition(lengthUnit) - y) > lengthTolerance || 
 		   Abs(Gps.heading(angleUnit) - angle) > angleTolerance) 

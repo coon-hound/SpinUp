@@ -8,10 +8,11 @@ using namespace vex;
 
 class Bot 
 {
+friend int main();
 private:
 	//PD controller constants (need to be tuned)
-	const double kP = 5, kD = 0.1; // tune value
-	const double kP_angle = 0.05, kD_angle = 0.001; // tune value
+	const double kP = 50, kD = 0.1; // tune value
+	const double kP_angle = 1, kD_angle = 0.1; // tune value
 
 	// devices
 	motor LeftMotor1 = motor(LEFT_MOTOR1, ratio18_1, true); // Orthogonal 1
@@ -32,12 +33,11 @@ private:
 	// drive variables
 	double orthogonal1, orthogonal2; // defining orthogonal axis values
 	double orthogonal1Speed, orthogonal2Speed; // orthogonal axis speeds
-	double theta, sine, cosine; // defining angle values
+	double angleError, heading, sine, cosine; // defining angle values
 	double lastError1, lastError2; // defining derivative values
 	double proportional1, derivative1, proportional2, derivative2; // PD controller variables
 
 	//angle variables
-	double angleError;
 	double lastAngleError;
 	double proportionalAngle, derivativeAngle;
 	double turnSpeed;
