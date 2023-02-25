@@ -16,9 +16,10 @@ void blueAutonomous();
 
 int main() 
 {
-  
-  control_sequence();
-  // blueAutonomous();
+  // base.Move(-20, 130, -47.5, 50, 3, 50);
+  // base.Shoot(10);
+  // control_sequence();
+  blueAutonomous();
   // base.test();
   // autonomous();
   // control_sequence();

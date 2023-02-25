@@ -11,8 +11,8 @@ class Bot
 friend int main();
 private:
 	//PD controller constants (need to be tuned)
-	const double kP = 1, kD = 2; // tune value
-	const double kP_angle = 0.15, kD_angle = 0.05; // tune value
+	const double kP = 0.1, kD = 2; // tune value
+	const double kP_angle = 0.15, kD_angle = 0.1; // tune value
 	//const double kP = 0.1, kD = 0.25; // tune value
 	//const double kP_angle = 0.05, kD_angle = 0.025; // tune value
 
