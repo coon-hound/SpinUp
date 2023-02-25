@@ -6,7 +6,9 @@
 #include <math.h>
 using namespace vex;
 
-controller Controller = controller(primary);
+// controller Controller = controller(primary);
+
+// gps BotGps(GPS, 0, left);
 
 class Clock 
 {
@@ -32,30 +34,27 @@ double Bot::Abs(double k)
 	return -k;
 }
 
-namespace _internal
+double Bot::getSine(double angle)
+{	
+	return sin(angle / 180 * M_PI);
+}
+double Bot::getCosine(double angle)
 {
-	double getSine(double angle)
-	{
-		return sin(angle / 180 * M_PI);
-	}
-	double getCosine(double angle)
-	{
-		return cos(angle / 180 * M_PI);
-	}
+	return cos(angle / 180 * M_PI);
 }
 
-void Bot::AdjustHeading(double x, double y, double degree, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
+void Bot::AdjustHeading(double x, double y, double degree) 
 {
+  
 	// gets robot state
-	double relativeX = x - Gps.xPosition(lengthUnit);
-	double relativeY = y - Gps.yPosition(lengthUnit);
-
-	angleError = degree - Gps.heading(angleUnit);
-	heading = Gps.heading() - 45;
+	double relativeX = BotGps.xPosition(mm) - x;
+	double relativeY = BotGps.yPosition(mm) - y;
+	angleError = degree - BotGps.heading(deg);
+	heading = BotGps.heading(deg) - 45;
 	
 	// necessary trig functions
-	sine = _internal::getSine(heading);
-	cosine = _internal::getCosine(heading);
+	sine = getSine(heading);
+	cosine = getCosine(heading);
 
 	// matrix calculation
 	orthogonal1 = (cosine * relativeY) - (sine * relativeX);
@@ -83,40 +82,47 @@ void Bot::AdjustHeading(double x, double y, double degree, distanceUnits lengthU
 	lastError2 = orthogonal2;
 
 	// Update orthogonal1 axis speeds
-	LeftMotor1Speed = orthogonal1Speed + turnSpeed;
-	RightMotor2Speed = orthogonal1Speed - turnSpeed;
+	LeftMotor1Speed = orthogonal1Speed - turnSpeed;
+	RightMotor2Speed = orthogonal1Speed + turnSpeed;
 	// Update orthogonal2 axis speeds
-	LeftMotor2Speed = orthogonal2Speed + turnSpeed;
-	RightMotor1Speed = orthogonal2Speed - turnSpeed;
-	std::cout << "Coords: " << Gps.xPosition() << ", " << Gps.yPosition() << "\n";
+	LeftMotor2Speed = orthogonal2Speed - turnSpeed;
+	RightMotor1Speed = orthogonal2Speed + turnSpeed;
+	std::cout << "Coords: " << BotGps.xPosition(mm) << ", " << BotGps.yPosition(mm) << "\n";
+	std::cout << "Angle: " << BotGps.heading(deg) << "\n";
 	std::cout << "X: " << relativeX << " Y: " << relativeY << "\n";
 	std::cout << "Angle: " << angleError << "\n";
 	std::cout << "O1speed: " << orthogonal1Speed << " O2speed: " << orthogonal2Speed << " turnspeed: " << turnSpeed << "\n";
 	std::cout << "O1: " << orthogonal1 << " O2: " << orthogonal2 << " Angle: " << angleError << "\n\n";
+	
 }
 
 
 
 void Bot::Spin() 
 {
-	LeftMotor1.spin(fwd, LeftMotor1Speed, pct);
-	LeftMotor2.spin(fwd, LeftMotor2Speed, pct);
-	RightMotor1.spin(fwd, RightMotor1Speed, pct);
-	RightMotor2.spin(fwd, RightMotor2Speed, pct);
+ 	LeftMotor1.spin(fwd, LeftMotor1Speed, pct);
+ 	LeftMotor2.spin(fwd, LeftMotor2Speed, pct);
+ 	RightMotor1.spin(fwd, RightMotor1Speed, pct);
+ 	RightMotor2.spin(fwd, RightMotor2Speed, pct);
 }
 
-void Bot::Move(double x, double y, double angle, double lengthTolerance = 100, double angleTolerance = 10, 
-			   double tickLength = 0, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg) 
+void Bot::Move(double x, double y, double angle, double lengthTolerance = 100, double angleTolerance = 10, double tickLength = 0) 
 {
-	lastAngleError = angle - Gps.heading(deg);
-	double initialcos = cos((Gps.heading(deg) - 45) / 180 * M_PI), initialsin = sin((Gps.heading(deg) - 45) / 180 * M_PI);
-	lastError1 = (initialcos * (y - Gps.yPosition())) - (initialsin * (x - Gps.xPosition()));
-	lastError2 = (initialsin * (y - Gps.yPosition())) + (initialcos * (x - Gps.xPosition()));
-	while (Abs(Gps.xPosition(lengthUnit) - x) > lengthTolerance || 
-		   Abs(Gps.yPosition(lengthUnit) - y) > lengthTolerance || 
-		   Abs(Gps.heading(angleUnit) - angle) > angleTolerance) 
+	double askdjfkj = BotGps.xPosition(mm);
+	double fiuqiowie = BotGps.yPosition(mm);
+	double ajfjqrwuer = BotGps.heading(deg);
+	std::cout << askdjfkj << fiuqiowie << ajfjqrwuer << " Done calibrating\n\n";
+	
+
+	lastAngleError = angle - BotGps.heading(deg);
+	double initialcos = cos((BotGps.heading(deg) - 45) / 180 * M_PI), initialsin = sin((BotGps.heading(deg) - 45) / 180 * M_PI);
+	lastError1 = (initialcos * (y - BotGps.yPosition(mm))) - (initialsin * (x - BotGps.xPosition(mm)));
+	lastError2 = (initialsin * (y - BotGps.yPosition(mm))) + (initialcos * (x - BotGps.xPosition(mm)));
+	while (Abs(BotGps.xPosition(mm) - x) > lengthTolerance || 
+		   Abs(BotGps.yPosition(mm) - y) > lengthTolerance || 
+		   Abs(BotGps.heading(deg) - angle) > angleTolerance) 
 	{
-		AdjustHeading(x, y, angle, lengthUnit, angleUnit);
+		AdjustHeading(x, y, angle);
 		Spin();
 		vexDelay(tickLength);
 	}
@@ -128,12 +134,12 @@ void Bot::Move(double x, double y, double angle, double lengthTolerance = 100, d
 
 void Bot::Turn(double angle) 
 {
-	Move(Gps.xPosition(mm), Gps.yPosition(mm), Gps.heading(deg) + angle, 25, 1, 20, mm, deg);
+	Move(BotGps.xPosition(mm), BotGps.yPosition(mm), BotGps.heading(deg) + angle, 25, 1, 20);
 }
 
 void Bot::SetHeading(double angle) 
 {
-	Move(Gps.xPosition(mm), Gps.yPosition(mm), angle, 25, 1, 20, mm, deg);
+	Move(BotGps.xPosition(mm), BotGps.yPosition(mm), angle, 25, 1, 20);
 }
 
 void Bot::Shoot(int seconds) 

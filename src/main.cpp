@@ -16,8 +16,10 @@ void blueAutonomous();
 
 int main() 
 {
+  
   // control_sequence();
   blueAutonomous();
+  // base.test();
   // autonomous();
   // control_sequence();
 
@@ -30,11 +32,11 @@ void control_sequence()
 
 void blueAutonomous() 
 {
-  base.Move(100, 100, 0, 50, 5, 0, mm, deg);
-  std::cout << "Done 1\n\n\n\n\n\n\n\n\n";
-  vexDelay(1000);
-  base.Move(-100, -500, 15, 50, 5, 0, mm, deg);
-  std::cout << "Done 2\n";
+   base.Move(100, 100, 0, 50, 5, 50);
+  // std::cout << "Done 1\n\n\n\n\n\n\n\n\n";
+  // vexDelay(1000);
+  // base.Move(-100, -500, 15, 50, 5, 50);
+  // std::cout << "Done 2\n";
   /*
    * void Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
                double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg);

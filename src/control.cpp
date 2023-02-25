@@ -15,18 +15,16 @@ int control()
   //controller
   controller Controller = controller(primary);
   //motors
-  motor LeftMotor1(LEFT_MOTOR1, ratio18_1, true);
-  motor LeftMotor2(LEFT_MOTOR2, ratio18_1, true);
-  motor RightMotor1(RIGHT_MOTOR1, ratio18_1, false);
-  motor RightMotor2(RIGHT_MOTOR2, ratio18_1, false);
+  motor LeftMotor1(LEFT_MOTOR1, ratio18_1, false);
+  motor LeftMotor2(LEFT_MOTOR2, ratio18_1, false);
+  motor RightMotor1(RIGHT_MOTOR1, ratio18_1, true);
+  motor RightMotor2(RIGHT_MOTOR2, ratio18_1, true);
 
   motor Intake1(INTAKE1, ratio18_1, true);
   motor Intake2(INTAKE2, ratio18_1, false);
 
   motor Flywheel1(FLYWHEEL1, ratio18_1, true);
   motor Flywheel2(FLYWHEEL2, ratio18_1, false);
-
-  gps Gps(GPS, 0, turnType::right);
 
   double intakespeed = 0.0;
   double flywheelspeed = 0.0;
@@ -104,8 +102,6 @@ int control()
     //spinning
     Intake1.spin(fwd, intakespeed, pct);
     Intake2.spin(fwd, intakespeed, pct);
-
-    printf("(%lf, %lf) at angle %lf\n", Gps.xPosition(), Gps.yPosition(), Gps.heading());
 
   }
   // vexDelay(1000);
