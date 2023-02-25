@@ -47,18 +47,18 @@ void Bot::AdjustHeading(double x, double y, double degree)
 {
   
 	// gets robot state
-	double relativeX = BotGps.xPosition(mm) - x;
-	double relativeY = BotGps.yPosition(mm) - y;
-	angleError = degree - BotGps.heading(deg);
-	heading = BotGps.heading(deg) - 45;
+	double relativeX = 0-(x - BotGps.xPosition(mm)); //
+	double relativeY = 0-(y - BotGps.yPosition(mm)); //
+	angleError = degree - BotGps.heading(deg); //
+	currentHeading = BotGps.heading(deg) - 45; //
 	
 	// necessary trig functions
-	sine = getSine(heading);
-	cosine = getCosine(heading);
+	sine = getSine(currentHeading); //
+	cosine = getCosine(currentHeading); //
 
 	// matrix calculation
-	orthogonal1 = (cosine * relativeY) - (sine * relativeX);
-	orthogonal2 = (cosine * relativeX) + (sine * relativeY);
+  orthogonal1 = (cosine * relativeX) + (sine * relativeY); //
+	orthogonal2 = (cosine * relativeY) - (sine * relativeX); //
 
 	// PD Controller for axis displacement
  	proportional1 = orthogonal1 * kP; 
@@ -81,18 +81,30 @@ void Bot::AdjustHeading(double x, double y, double degree)
 	lastError1 = orthogonal1;
 	lastError2 = orthogonal2;
 
-	// Update orthogonal1 axis speeds
-	LeftMotor1Speed = orthogonal1Speed - turnSpeed;
-	RightMotor2Speed = orthogonal1Speed + turnSpeed;
-	// Update orthogonal2 axis speeds
-	LeftMotor2Speed = orthogonal2Speed - turnSpeed;
-	RightMotor1Speed = orthogonal2Speed + turnSpeed;
+  RightMotor1Speed = 0 - orthogonal1Speed;
+  LeftMotor2Speed = 0 - orthogonal1Speed;
+  LeftMotor1Speed = orthogonal2Speed;
+  RightMotor2Speed = orthogonal2Speed;
+
+  LeftMotor1Speed -= turnSpeed;
+  LeftMotor2Speed -= turnSpeed;
+  RightMotor1Speed += turnSpeed;
+  RightMotor2Speed += turnSpeed;
+
 	std::cout << "Coords: " << BotGps.xPosition(mm) << ", " << BotGps.yPosition(mm) << "\n";
-	std::cout << "Angle: " << BotGps.heading(deg) << "\n";
-	std::cout << "X: " << relativeX << " Y: " << relativeY << "\n";
-	std::cout << "Angle: " << angleError << "\n";
+  vexDelay(1);
+	std::cout << "Heading: " << BotGps.heading(deg) << "\n";
+  vexDelay(1);
+	std::cout << "Relative X: " << relativeX << " Relative Y: " << relativeY << "\n";
+  vexDelay(1);
+	std::cout << "Angle Error: " << angleError << "\n";
+  vexDelay(1);
+  std::cout << "Current heading: " << currentHeading << "\n";
+  vexDelay(1);
 	std::cout << "O1speed: " << orthogonal1Speed << " O2speed: " << orthogonal2Speed << " turnspeed: " << turnSpeed << "\n";
-	std::cout << "O1: " << orthogonal1 << " O2: " << orthogonal2 << " Angle: " << angleError << "\n\n";
+  vexDelay(1);
+	std::cout << "O1Error: " << orthogonal1 << " O2Error: " << orthogonal2 << " AngleError: " << angleError << "\n\n";
+  vexDelay(50);
 	
 }
 
