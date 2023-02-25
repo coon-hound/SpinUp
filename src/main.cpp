@@ -9,6 +9,7 @@ brain Brain;
 task controller_control;
 Bot base;
 controller selectionController = controller(primary);
+competition Competition;
 
 void autonomous();
 void control_sequence();
@@ -16,13 +17,11 @@ void blueAutonomous();
 
 int main() 
 {
-  // base.Move(-20, 130, -47.5, 50, 3, 50);
-  // base.Shoot(10);
   // control_sequence();
   blueAutonomous();
   // base.test();
-  // autonomous();
-  // control_sequence();
+  // Competition.autonomous(autonomous);
+  // Competition.drivercontrol(control_sequence);
 
 }
 
