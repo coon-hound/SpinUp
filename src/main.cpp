@@ -57,10 +57,12 @@ void redAutonomous()
 void autonomous() 
 {
   // waiting for selection: Neither button is pressed
+  base.Roll();
   while (true)
   {
     vexDelay(1000);
   }
+
   /*
   while (!selectionController.ButtonUp.pressing() and !selectionController.ButtonDown.pressing())
   {

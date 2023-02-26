@@ -190,9 +190,13 @@ void Bot::Roll()
 	Intake2.setPosition(0, deg);
 	Intake1.spin(fwd, 50, pct);
 	Intake2.spin(fwd, 50, pct);
+  LeftMotor1.spin(fwd, -10, pct);
+  LeftMotor2.spin(fwd, -10, pct);
+  RightMotor1.spin(fwd, -10, pct);
+  RightMotor2.spin(fwd, -10, pct);
 	while (Abs(Intake1.position(deg) - 180) > 5 and Abs(Intake2.position(deg) - 180) > 5)
 	{
-		vexDelay(20);
+		vexDelay(10);
 	}
 	Intake1.stop();
 	Intake2.stop();
