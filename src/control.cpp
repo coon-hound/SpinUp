@@ -60,7 +60,7 @@ int control()
     //drive left right
     axis4_value = 1.0 * Controller.Axis4.position();
 
-    if(Controller.ButtonL2.pressing()) {
+    if(Controller.ButtonB.pressing()) {
       // p.open();
       p.set(true);
     } else{

@@ -17,12 +17,13 @@ void blueAutonomous();
 
 int main() 
 {
-  // control_sequence();
-  blueAutonomous();
-  // base.test();
-  // Competition.autonomous(autonomous);
-  // Competition.drivercontrol(control_sequence);
-
+  // base.test()
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(control_sequence);
+  while (1)
+  {
+    vex::task::sleep(100);
+  }
 }
 
 void control_sequence() 
@@ -32,19 +33,13 @@ void control_sequence()
 
 void blueAutonomous() 
 {
-   base.Move(500, -500, 180, 50, 5, 50);
-  // std::cout << "Done 1\n\n\n\n\n\n\n\n\n";
-  vexDelay(1000);
-  base.Move(-500, 500, 15, 50, 5, 50);
-  // std::cout << "Done 2\n";
-  /*
-   * void Move(double x, double y, double angle, double lengthTolerance = 25, double angleTolerance = 1, 
-               double tickLength = 20, distanceUnits lengthUnit = mm, rotationUnits angleUnit = deg);
-	 * void Turn(double angle);
-	 * void SetHeading(double angle);
-	 * void Shoot(int seconds);
-	 * void Roll();
-  */
+
+  base.Move(1500, -1500, 0, 50, 3, 50);
+  base.Intake();
+  base.Move(1200, -1200, 90, 50, 3, 50);
+  base.Intake();
+  base.Move(-20, 130, -47.5, 50, 3, 50);
+  base.Shoot(6);
 }
 
 void redAutonomous() 
@@ -62,6 +57,11 @@ void redAutonomous()
 void autonomous() 
 {
   // waiting for selection: Neither button is pressed
+  while (true)
+  {
+    vexDelay(1000);
+  }
+  /*
   while (!selectionController.ButtonUp.pressing() and !selectionController.ButtonDown.pressing())
   {
     vexDelay(10);
@@ -76,4 +76,5 @@ void autonomous()
   {
     redAutonomous();
   }
+  */
 }

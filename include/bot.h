@@ -11,12 +11,13 @@ class Bot
 friend int main();
 private:
 	//PD controller constants (need to be tuned)
-	const double kP = 0.1, kD = 2; // tune value
-	const double kP_angle = 0.15, kD_angle = 0.1; // tune value
+	const double kP = 0.12, kD = 0.075; // tune value
+	const double kP_angle = 1.75, kD_angle = 1; // tune value
 	//const double kP = 0.1, kD = 0.25; // tune value
 	//const double kP_angle = 0.05, kD_angle = 0.025; // tune value
 
 	// devices
+	brain Brain;
 	motor LeftMotor1 = motor(LEFT_MOTOR1, ratio18_1, true); // Orthogonal 1
 	motor LeftMotor2 = motor(LEFT_MOTOR2, ratio18_1, true); // Orthogonal 2
 	motor RightMotor1 = motor(RIGHT_MOTOR1, ratio18_1, false); // Orthogonal 2
@@ -62,6 +63,7 @@ public:
 	void SetHeading(double angle);
 	void Shoot(int seconds);
 	void Roll();
+	void Intake();
 };
 
 #endif
